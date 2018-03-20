@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 english = """
 all six eleven just less being indeed over both anyway detail four front already through yourselves fify
 mill still its before move whose one system also somewhere herself thick show had enough should to only
@@ -85,57 +87,9 @@ warum was weiter weitere wenn wer werde werden werdet weshalb wie wieder wieso w
 zum zur uber
 """
 
-portuguese = """
-de a o que e do da em um para é com não uma os no se na por mais as dos como mas foi ao ele das tem à seu
-sua ou ser quando muito há nos já está eu também só pelo pela até isso ela entre era depois sem mesmo aos ter
-seus quem nas me esse eles estão você tinha foram essa num nem suas meu às minha têm numa pelos elas havia seja
-qual será nós tenho lhe deles essas esses pelas este fosse dele tu te vocês vos lhes meus minhas teu tua teus
-tuas nosso nossa nossos nossas dela delas esta estes estas aquele aquela aqueles aquelas isto aquilo estou está
-estamos estão estive esteve estivemos estiveram estava estávamos estavam estivera estivéramos esteja estejamos
-estejam estivesse estivéssemos estivessem estiver estivermos estiverem hei há havemos hão houve houvemos houveram
-houvera houvéramos haja hajamos hajam houvesse houvéssemos houvessem houver houvermos houverem houverei houverá
-houveremos houverão houveria houveríamos houveriam sou somos são era éramos eram fui foi fomos foram fora fôramos
-seja sejamos sejam fosse fôssemos fossem for formos forem serei será seremos serão seria seríamos seriam tenho
-tem temos tém tinha tínhamos tinham tive teve tivemos tiveram tivera tivéramos tenha tenhamos tenham tivesse
-tivéssemos tivessem tiver tivermos tiverem terei terá teremos terão teria teríamos teriam
-"""
-
-swedish = """
-aderton adertonde adjö aldrig alla allas allt alltid alltså andra andras annan annat artonde artonn att av bakom 
-bara behöva behövas behövde behövt beslut beslutat beslutit bland blev bli blir blivit bort borta bra bäst bättre
-båda bådas dag dagar dagarna dagen de del delen dem den denna deras dess dessa det detta dig din dina dit ditt 
-dock dom du där därför då e efter eftersom ej elfte eller elva emot en enkel enkelt enkla enligt ens er era ers 
-ert ett ettusen fanns fem femte femtio femtionde femton femtonde fick fin finnas finns fjorton fjortonde fjärde 
-fler flera flesta fram framför från fyra fyrtio fyrtionde få får fått följande för före förlåt förra första 
-genast genom gick gjorde gjort god goda godare godast gott gälla gäller gällt gärna gå går gått gör göra ha hade 
-haft han hans har heller hellre helst helt henne hennes hit hon honom hundra hundraen hundraett hur här hög höger 
-högre högst i ibland icke idag igen igår imorgon in inför inga ingen ingenting inget innan inne inom inte inuti 
-ja jag jo ju just jämfört kan kanske knappast kom komma kommer kommit kr kunde kunna kunnat kvar legat ligga 
-ligger lika likställd likställda lilla lite liten litet länge längre längst lätt lättare lättast långsam 
-långsammare långsammast långsamt långt låt man med mej mellan men mer mera mest mig min mina mindre minst mitt 
-mittemot mot mycket många måste möjlig möjligen möjligt möjligtvis ned nederst nedersta nedre nej ner ni nio 
-nionde nittio nittionde nitton nittonde nog noll nr nu nummer när nästa någon någonting något några nån nånting 
-nåt nödvändig nödvändiga nödvändigt nödvändigtvis och också ofta oftast olika olikt om oss på rakt redan rätt sa 
-sade sagt samma sedan senare senast sent sex sextio sextionde sexton sextonde sig sin sina sist sista siste sitt 
-sitta sju sjunde sjuttio sjuttionde sjutton sjuttonde själv sjätte ska skall skulle slutligen små smått snart som 
-stor stora stort större störst säga säger sämre sämst så sådan sådana sådant ta tack tar tidig tidigare tidigast 
-tidigt till tills tillsammans tio tionde tjugo tjugoen tjugoett tjugonde tjugotre tjugotvå tjungo tolfte tolv tre 
-tredje trettio trettionde tretton trettonde två tvåhundra under upp ur ursäkt ut utan utanför ute va vad var vara 
-varför varifrån varit varje varken vars varsågod vart vem vems verkligen vi vid vidare viktig viktigare viktigast 
-viktigt vilka vilkas vilken vilket vill väl vänster vänstra värre vår våra vårt än ännu är även åt åtminstone 
-åtta åttio åttionde åttonde över övermorgon överst övre
-"""
-
-LANGUAGES = {
-    "english": english,
-    "german": german,
-    "spanish": spanish,
-    "portuguese": portuguese,
-    "swedish": swedish,
-}
-
+LANGUAGES = {"english": english, "german": german, "spanish": spanish}
 
 def get_stopwords_by_language(language):
     if language in LANGUAGES:
         return LANGUAGES[language]
-    return ""
+    return LANGUAGES["english"]

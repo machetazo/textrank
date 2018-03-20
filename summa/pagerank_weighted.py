@@ -1,3 +1,4 @@
+
 from scipy.sparse import csr_matrix
 from scipy.linalg import eig
 from numpy import empty as empty_matrix
@@ -12,13 +13,14 @@ except ImportError:
 CONVERGENCE_THRESHOLD = 0.0001
 
 
+
 def pagerank_weighted(graph, initial_value=None, damping=0.85):
     """Calculates PageRank for an undirected graph"""
     if initial_value == None: initial_value = 1.0 / len(graph.nodes())
     scores = dict.fromkeys(graph.nodes(), initial_value)
 
     iteration_quantity = 0
-    for iteration_number in range(100):
+    for iteration_number in xrange(100):
         iteration_quantity += 1
         convergence_achieved = 0
         for i in graph.nodes():

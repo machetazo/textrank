@@ -1,4 +1,5 @@
-from .graph import Graph
+
+from summa.graph import Graph
 
 
 def build_graph(sequence):

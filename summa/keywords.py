@@ -1,11 +1,11 @@
 from itertools import combinations as _combinations
-from queue import Queue
+from multiprocessing import Queue as _Queue
 
-from .pagerank_weighted import pagerank_weighted_scipy as _pagerank
-from .preprocessing.textcleaner import clean_text_by_word as _clean_text_by_word
-from .preprocessing.textcleaner import tokenize_by_word as _tokenize_by_word
-from .commons import build_graph as _build_graph
-from .commons import remove_unreachable_nodes as _remove_unreachable_nodes
+from summa.pagerank_weighted import pagerank_weighted_scipy as _pagerank
+from summa.preprocessing.textcleaner import clean_text_by_word as _clean_text_by_word
+from summa.preprocessing.textcleaner import tokenize_by_word as _tokenize_by_word
+from summa.commons import build_graph as _build_graph
+from summa.commons import remove_unreachable_nodes as _remove_unreachable_nodes
 
 WINDOW_SIZE = 2
 
@@ -55,7 +55,7 @@ def _process_first_window(graph, tokens, split_text):
 
 
 def _init_queue(split_text):
-    queue = Queue()
+    queue = _Queue()
     first_window = _get_first_window(split_text)
     for word in first_window[1:]:
         queue.put(word)
@@ -126,6 +126,8 @@ def _get_keywords_with_score(extracted_lemmas, lemma_to_word):
         for keyword in keyword_list:
             keywords[keyword] = score
     return keywords
+    # return {keyword:score for score, lemma in extracted_lemmas for keyword in lemma_to_word[lemma]}
+    # if you dare
 
 
 def _strip_word(word):
@@ -146,16 +148,13 @@ def _get_combined_keywords(_keywords, split_text):
         word = _strip_word(split_text[i])
         if word in _keywords:
             combined_word = [word]
-            if i + 1 == len_text:
-                result.append(word)   # appends last word if keyword and doesn't iterate
+            if i + 1 == len_text: result.append(word)   # appends last word if keyword and doesn't iterate
             for j in range(i + 1, len_text):
                 other_word = _strip_word(split_text[j])
-                if other_word in _keywords and other_word == split_text[j] \
-                        and other_word not in combined_word:
+                if other_word in _keywords and other_word == split_text[j]:
                     combined_word.append(other_word)
                 else:
-                    for keyword in combined_word:
-                        _keywords.pop(keyword)
+                    for keyword in combined_word: _keywords.pop(keyword)
                     result.append(" ".join(combined_word))
                     break
     return result
@@ -184,12 +183,9 @@ def _format_results(_keywords, combined_keywords, split, scores):
     return "\n".join(combined_keywords)
 
 
-def keywords(text, ratio=0.2, words=None, language="english", split=False, scores=False, deaccent=False):
-    if not isinstance(text, str):
-        raise ValueError("Text parameter must be a Unicode object (str)!")
-
+def keywords(text, ratio=0.2, words=None, language="english", split=False, scores=False):
     # Gets a dict of word -> lemma
-    tokens = _clean_text_by_word(text, language, deacc=deaccent)
+    tokens = _clean_text_by_word(text, language)
     split_text = list(_tokenize_by_word(text))
 
     # Creates the graph and adds the edges
@@ -198,10 +194,6 @@ def keywords(text, ratio=0.2, words=None, language="english", split=False, score
     del split_text # It's no longer used
 
     _remove_unreachable_nodes(graph)
-
-    # PageRank cannot be run in an empty graph.
-    if len(graph.nodes()) == 0:
-        return [] if split else ""
 
     # Ranks the tokens using the PageRank algorithm. Returns dict of lemma -> score
     pagerank_scores = _pagerank(graph)
@@ -217,9 +209,9 @@ def keywords(text, ratio=0.2, words=None, language="english", split=False, score
     return _format_results(keywords, combined_keywords, split, scores)
 
 
-def get_graph(text, language="english", deaccent=False):
-    tokens = _clean_text_by_word(text, language, deacc=deaccent)
-    split_text = list(_tokenize_by_word(text, deacc=deaccent))
+def get_graph(text, language="english"):
+    tokens = _clean_text_by_word(text, language)
+    split_text = list(_tokenize_by_word(text))
 
     graph = _build_graph(_get_words_for_graph(tokens))
     _set_graph_edges(graph, tokens, split_text)

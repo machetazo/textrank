@@ -1,6 +1,4 @@
-# Adapted from the NLTK package v3.0.1:
-# https://github.com/nltk/nltk/blob/3.0.1/nltk/stem/snowball.py
-
+# -*- coding: utf-8 -*-
 #
 # Natural Language Toolkit: Snowball Stemmer
 #
@@ -17,9 +15,12 @@ Snowball stemmers
 This module provides a port of the Snowball stemmers
 developed by Martin Porter.
 
-"""
+There is also a demo function: `snowball.demo()`.
 
-from .porter import PorterStemmer
+"""
+from __future__ import unicode_literals, print_function
+
+from summa.preprocessing.porter import PorterStemmer
 
 
 class SnowballStemmer():
@@ -45,7 +46,7 @@ class SnowballStemmer():
 
     The stemmer is invoked as shown below:
 
-    >>> from summa.preprocessing.snowball import SnowballStemmer
+    >>> from nltk.stem import SnowballStemmer
     >>> print(" ".join(SnowballStemmer.languages)) # See which languages are supported
     danish dutch english finnish french german hungarian
     italian norwegian porter portuguese romanian russian
@@ -58,7 +59,7 @@ class SnowballStemmer():
     language to be stemmed at runtime. Alternatively, if you already know
     the language, then you can invoke the language specific stemmer directly:
 
-    >>> from summa.preprocessing.snowball import GermanStemmer
+    >>> from nltk.stem.snowball import GermanStemmer
     >>> stemmer = GermanStemmer()
     >>> stemmer.stem("Autobahnen")
     'autobahn'

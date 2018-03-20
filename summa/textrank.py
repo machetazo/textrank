@@ -1,24 +1,21 @@
-import sys, getopt
+#!/usr/bin/env python -W ignore::DeprecationWarning
 
-from .summarizer import summarize
-from .keywords import keywords
+import sys, getopt
+from summa.summarizer import summarize
+from summa.keywords import keywords
 
 # Types of summarization
 SENTENCE = 0
 WORD = 1
 
 
-def exit_with_error(err):
-    print("Error: " + str(err))
-    usage()
-    sys.exit(2)
-
 def get_arguments():
     try:
         opts, args = getopt.getopt(sys.argv[1:], "t:s:r:w:h", ["text=", "summary=", "ratio=", "words=", "help"])
     except getopt.GetoptError as err:
-        exit_with_error(err)
-
+        print (str(err))
+        usage()
+        sys.exit(2)
     path = None
     summarize_by = SENTENCE
     ratio = 0.2
@@ -38,13 +35,10 @@ def get_arguments():
         else:
             assert False, "unhandled option"
 
-    if path is None:
-        exit_with_error("-t option is required.")
-
     return path, summarize_by, ratio, words
 
 
-help_text = """Usage: textrank -t FILE
+help_text = """Usage: python textrank.py -t FILE
 -s UNIT, --summary=UNIT:
 \tType of unit to summarize: sentence (0) or word (1). Default value: 0
 \t0: Sentence. 1: Word
@@ -58,7 +52,7 @@ help_text = """Usage: textrank -t FILE
 \tprints this help
 """
 def usage():
-    print(help_text)
+    print (help_text)
 
 
 def textrank(text, summarize_by=SENTENCE, ratio=0.2, words=None):
@@ -74,7 +68,7 @@ def main():
     with open(path) as file:
         text = file.read()
 
-    print(textrank(text, summarize_by, ratio, words))
+    print (textrank(text, summarize_by, ratio, words))
 
 
 if __name__ == "__main__":

@@ -1,7 +1,8 @@
+# encoding: cp850
+
 import string
 import unicodedata
 import logging
-
 logger = logging.getLogger('summa.preprocessing.cleaner')
 
 try:
@@ -12,20 +13,13 @@ except ImportError:
     logger.info("'pattern' package not found; tag filters are not available for English")
     HAS_PATTERN = False
 
-import re
-
-from .snowball import SnowballStemmer
-from .stopwords import get_stopwords_by_language
+from summa.preprocessing.snowball import SnowballStemmer
+from summa.preprocessing.stopwords import get_stopwords_by_language
+import re  # http://regex101.com/#python to test regex
 from summa.syntactic_unit import SyntacticUnit
 
-
-# Utility functions adapted from Gensim v0.10.0:
-# https://github.com/RaRe-Technologies/gensim/blob/0.10.0/gensim/utils.py
-# https://github.com/RaRe-Technologies/gensim/blob/0.10.0/gensim/parsing/preprocessing.py
-
-
 SEPARATOR = r"@"
-RE_SENTENCE = re.compile('(\S.+?[.!?])(?=\s+|$)|(\S.+?)(?=[\n]|$)')
+RE_SENTENCE = re.compile('(\S.+?[.!?])(?=\s+|$)|(\S.+?)(?=[\n]|$)')  # backup (\S.+?[.!?])(?=\s+|$)|(\S.+?)(?=[\n]|$)
 AB_SENIOR = re.compile("([A-Z][a-z]{1,2}\.)\s(\w)")
 AB_ACRONYM = re.compile("(\.[a-zA-Z]\.)\s(\w)")
 AB_ACRONYM_LETTERS = re.compile("([a-zA-Z])\.([a-zA-Z])\.")
@@ -86,15 +80,25 @@ def get_sentences(text):
         yield match.group()
 
 
-# Taken from Gensim
+# Taken from gensim
+def to_unicode(text, encoding='utf8', errors='strict'):
+    """Convert a string (bytestring in `encoding` or unicode), to unicode."""
+    if isinstance(text, str):
+        return text
+    return unicode(text, encoding, errors=errors)
+
+
+# Taken from gensim
 RE_PUNCT = re.compile('([%s])+' % re.escape(string.punctuation), re.UNICODE)
 def strip_punctuation(s):
+    s = to_unicode(s)
     return RE_PUNCT.sub(" ", s)
 
 
-# Taken from Gensim
+# Taken from gensim
 RE_NUMERIC = re.compile(r"[0-9]+", re.UNICODE)
 def strip_numeric(s):
+    s = to_unicode(s)
     return RE_NUMERIC.sub("", s)
 
 
@@ -116,27 +120,40 @@ def apply_filters(sentence, filters):
 def filter_words(sentences):
     filters = [lambda x: x.lower(), strip_numeric, strip_punctuation, remove_stopwords,
                stem_sentence]
+    # filters = []
+
     apply_filters_to_token = lambda token: apply_filters(token, filters)
-    return list(map(apply_filters_to_token, sentences))
+    return map(apply_filters_to_token, sentences)
 
 
-# Taken from Gensim
+# Taken from six
+def u(s):
+    return s.replace(r'\\', r'\\\\')
+
+
+# Taken from gensim
 def deaccent(text):
     """
-    Remove accentuation from the given string.
+    Remove accentuation from the given string. Input text is either a unicode string or utf8
+    encoded bytestring.
     """
+    if not isinstance(text, str):
+        # assume utf8 for byte strings, use default (strict) error handling
+        text = text.decode('utf8')
     norm = unicodedata.normalize("NFD", text)
-    result = "".join(ch for ch in norm if unicodedata.category(ch) != 'Mn')
+    result = u('').join(ch for ch in norm if unicodedata.category(ch) != 'Mn')
     return unicodedata.normalize("NFC", result)
 
 
-# Taken from Gensim
+# Taken from gensim
 PAT_ALPHABETIC = re.compile('(((?![\d])\w)+)', re.UNICODE)
-def tokenize(text, lowercase=False, deacc=False):
+def tokenize(text, lowercase=False, deacc=False, errors="strict", to_lower=False, lower=False):
     """
     Iteratively yield tokens as unicode strings, optionally also lowercasing them
     and removing accent marks.
     """
+    lowercase = lowercase or to_lower or lower
+    text = to_unicode(text, errors=errors)
     if lowercase:
         text = text.lower()
     if deacc:
@@ -146,6 +163,7 @@ def tokenize(text, lowercase=False, deacc=False):
 
 
 def merge_syntactic_units(original_units, filtered_units, tags=None):
+    filtered_units = list(filtered_units)
     units = []
     for i in range(len(original_units)):
         if filtered_units[i] == '':
@@ -172,21 +190,21 @@ def clean_text_by_sentences(text, language="english"):
     return merge_syntactic_units(original_sentences, filtered_sentences)
 
 
-def clean_text_by_word(text, language="english", deacc=False):
+def clean_text_by_word(text, language="english"):
     """ Tokenizes a given text into words, applying filters and lemmatizing them.
     Returns a dict of word -> syntacticUnit. """
     init_textcleanner(language)
     text_without_acronyms = replace_with_separator(text, "", [AB_ACRONYM_LETTERS])
-    original_words = list(tokenize(text_without_acronyms, lowercase=True, deacc=deacc))
+    original_words = list(tokenize(text_without_acronyms, to_lower=True, deacc=True))
     filtered_words = filter_words(original_words)
     if HAS_PATTERN:
-        tags = tag(" ".join(original_words))  # tag needs the context of the words in the text
+        tags = tag(" ".join(original_words)) # tag needs the context of the words in the text
     else:
         tags = None
     units = merge_syntactic_units(original_words, filtered_words, tags)
     return { unit.text : unit for unit in units }
 
 
-def tokenize_by_word(text, deacc=False):
+def tokenize_by_word(text):
     text_without_acronyms = replace_with_separator(text, "", [AB_ACRONYM_LETTERS])
-    return tokenize(text_without_acronyms, lowercase=True, deacc=deacc)
+    return tokenize(text_without_acronyms, to_lower=True, deacc=True)
