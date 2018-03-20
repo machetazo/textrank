@@ -1,4 +1,4 @@
-# This is a port of summanlp's implementation of textrank to python 3.5
+# This is a port of summanlp's implementation of textrank to python 3.x
 
 Original module [here](https://github.com/summanlp/textrank).
 
